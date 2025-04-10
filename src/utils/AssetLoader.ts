@@ -80,6 +80,7 @@ export class AssetLoader {
     private async loadSounds(): Promise<void> {
         try {
             SOUNDS.forEach(async soundFile => {
+                //replace the sound handler to this one
                 await SoundHandler.instance.add(soundFile.split('.')[0], SOUNDS_PATH + soundFile);
             });
         } catch (error) {

@@ -8,6 +8,7 @@ export class ReelGroup {
     private spacing: number;
     private maskGraphic?: PIXI.Graphics;
 
+    //the group makes easier to mask and manage the reels
     constructor(spacing: number = 100, bounds?: PIXI.Rectangle) {
         this.container = new PIXI.Container();
         this.spacing = spacing;
@@ -29,15 +30,11 @@ export class ReelGroup {
         this.reels.push(reel);
     }
 
-    public getReel(index: number): Reel | undefined {
-        return this.reels[index];
-    }
-
-    public getReels(): Reel[] {
-        return this.reels;
-    }
 
     public async startSpin(willWin: boolean): Promise<void> {
+        //ideally if willWin is true, we can rig the reels to stop at a winning combination
+        //probably better if this recieve the final setting for the reels and not a boolean
+        //this is just a placeholder for now
         const spinDelay = 100
         for (const reel of this.reels) {
             await PromiseUtils.delay(spinDelay);
@@ -45,7 +42,7 @@ export class ReelGroup {
         }
         await PromiseUtils.delay(this.reels.length * spinDelay);
     }
-
+    //add some noise for stopping the reels
     public async stopSpin(): Promise<void> {
         const stopTime = 350
         for (const reel of this.reels) {

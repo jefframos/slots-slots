@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { Signal } from 'signals';
 import { AssetLoader } from '../utils/AssetLoader';
-import BaseButton, { ButtonData } from './BaseButton';
+import BaseButton, { ButtonData, ButtonState } from './BaseButton';
 export class UI {
     public container: PIXI.Container;
     private app: PIXI.Application;
@@ -19,6 +19,8 @@ export class UI {
     private createSpinButton(): void {
         try {
 
+            //Im using my personal button class here
+            //the button date below let you set how the state of the button will look
             const buttondata: ButtonData = {
                 standard: {
                     fontStyle: new PIXI.TextStyle({
@@ -47,29 +49,35 @@ export class UI {
                         align: 'center',
                     }),
                     texture: AssetLoader.getTexture('button_spin_disabled.png'),
-                },
-                click: {
-                    callback: () => {
-                        this.onStartReel.dispatch();
-                    }
                 }
 
             }
-            this.spinButton = new BaseButton(buttondata)
 
+            this.spinButton = new BaseButton(buttondata)
+            this.spinButton.setLabel('SPIN');
+
+            //this let me inject a callback for when the click happen
+            //the reason for this is that the buton data can be used for multiple buttons but the callback will vary
+            //callbacks can be added for each state
+            this.spinButton.overrider(ButtonState.CLICK, {
+                callback: () => {
+                    this.onStartReel.dispatch();
+                }
+            })
+
+            this.container.addChild(this.spinButton);
             this.spinButton.x = this.app.screen.width / 2 - this.spinButton.width / 2;
             this.spinButton.y = this.app.screen.height - 50 - this.spinButton.height / 2;
-
-            this.spinButton.setLabel('SPIN');
-            this.container.addChild(this.spinButton);
 
         } catch (error) {
             console.error('Error creating spin button:', error);
         }
     }
+    //the game controller handles this logic
     public reelStarted(): void {
         this.spinButton.disable();
     }
+    //the game controller handles this logic
     public reelFinished(): void {
         this.spinButton.enable();
     }

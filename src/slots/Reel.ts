@@ -13,7 +13,7 @@ const SYMBOL_TEXTURES = [
 
 const SPIN_SPEED = 50; // Pixels per frame
 const SLOWDOWN_RATE = 0.9; // Rate at which the reel slows down
-const MAX_BLUR = 20;
+const MAX_BLUR = 50;
 
 export class Reel {
     public container: PIXI.Container;
@@ -32,21 +32,25 @@ export class Reel {
         this.symbolCount = symbolCount;
 
 
+        //blur filter it is not very performatic but it looks nice
+        //if i had more time i would initialize the textures, then apply a blur filter and cache the result
+        //if it is spining i would replace the texture with the blurred one, and move back when it stops
+        //that is an easy trick to use filters and dont have to worry about performance, it also ideal for ColorMatrix and some other filters
+        //but for now i will use the filter on the container and let pixi handle it
+        //this is a bit of a hack, but it works for now
+        //this would be a better approach for performance
         this.blurFilter = new PIXI.BlurFilter();
         this.blurFilter.blurX = 0;
         this.blurFilter.blurY = 0;
         this.container.filters = [this.blurFilter];
 
         this.createSymbols();
-
-
     }
 
     private createSymbols(): void {
         for (let i = 0; i < this.symbolCount; i++) {
             this.addSymbol();
         }
-
         //this adds an extra symbol to the right side of the reel to create a seamless effect
         this.addSymbol();
     }
@@ -85,6 +89,7 @@ export class Reel {
             }
         }
 
+        //this updates the blur effect if the reel is spinning and the filter is being used
         if (this.container.filters?.includes(this.blurFilter)) {
             const blurAmount = Math.min((this.speed / SPIN_SPEED) * MAX_BLUR, MAX_BLUR);
             this.blurFilter.blurX = blurAmount;
@@ -100,10 +105,12 @@ export class Reel {
         }
     }
 
+    //check the symbol on the right siide
     private getRightmostSymbolX(): number {
         return Math.max(...this.symbols.map(s => s.x));
     }
 
+    //use a tween to smooth snap to the grid
     private snapToGrid(): void {
         this.container.filters = [];
         this.symbols.sort((a, b) => a.x - b.x);
@@ -116,6 +123,7 @@ export class Reel {
         }
     }
 
+    //start spinning the reel, also play the sound
     public startSpin(): void {
         if (!this.reelSound) {
             this.reelSound = SoundHandler.instance.getCopy('Reel spin');
@@ -128,7 +136,6 @@ export class Reel {
 
     public stopSpin(): void {
         this.reelSound?.stop();
-        this.reelSound = undefined;
         this.isSpinning = false;
     }
 }

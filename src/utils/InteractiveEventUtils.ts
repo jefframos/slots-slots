@@ -50,7 +50,6 @@ export default class InteractiveEventUtils {
     static addClickTap(target: PIXI.DisplayObject, callback: (event: PIXI.FederatedPointerEvent) => void) {
         target.interactive = true;
         this.addEvent(target, 'pointertap', callback);
-        //this.addEvent(target, 'click', callback);
     }
 
     static addPointerDown(target: PIXI.DisplayObject, callback: (event: PIXI.FederatedPointerEvent) => void) {

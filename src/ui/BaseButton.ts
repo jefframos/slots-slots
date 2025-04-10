@@ -1,6 +1,7 @@
 
 import * as PIXI from 'pixi.js';
 import InteractiveEventUtils from '../utils/InteractiveEventUtils';
+import ObjectCloner from '../utils/ObjectCloner';
 
 export enum ButtonState {
     STANDARD = 'standard',
@@ -49,7 +50,7 @@ export interface ButtonData {
     [ButtonState.DEACTIVE]?: ButtonAttributes;
     [ButtonState.DEACTIVE_OVER]?: ButtonAttributes;
 }
-
+//this is some of my personal one, less documented than the rest of the code
 export default class BaseButton extends PIXI.Container {
     protected buttonDataSet: ButtonData;
     protected button: PIXI.NineSlicePlane;
@@ -83,6 +84,21 @@ export default class BaseButton extends PIXI.Container {
         // Add button to container
         this.addChild(this.button);
         this.setState(ButtonState.STANDARD);
+        this.updateHitArea();
+    }
+
+    public overrider(state: ButtonState, attributes: ButtonAttributes) {
+
+        if (this.buttonDataSet[state]) {
+            this.buttonDataSet[state] = ObjectCloner.clone(this.buttonDataSet[state], attributes)
+
+            if (state == this._currentState) {
+                this.setState(state);
+            }
+        } else {
+            this.buttonDataSet[state] = { ...attributes }
+        }
+
         this.updateHitArea();
     }
 

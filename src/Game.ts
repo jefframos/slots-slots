@@ -39,6 +39,9 @@ export class Game {
         try {
             await this.assetLoader.loadAssets();
 
+            //not a big fan of sending the app here
+            //i usually handles this with a class that handles the resizing, updates and other things
+            //but for now this will do
             this.slotMachine = new SlotMachine(this.app);
             this.app.stage.addChild(this.slotMachine.container);
 

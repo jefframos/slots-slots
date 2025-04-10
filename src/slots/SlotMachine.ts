@@ -18,7 +18,6 @@ export class SlotMachine {
     public container: PIXI.Container;
     private reelGroup: ReelGroup;
     private app: PIXI.Application;
-    private isSpinning: boolean = false;
     private frameSpine!: SpineAnimationHandler;
     private winAnimation!: SpineAnimationHandler;
 
@@ -36,13 +35,8 @@ export class SlotMachine {
         this.reelGroup = new ReelGroup(REEL_SPACING, new PIXI.Rectangle(0, 0, SLOT_PANEL_WIDTH, SLOT_PANEL_HEIGHT));
 
         this.createBackground();
-
         this.createReels();
-
         this.initSpineAnimations();
-
-
-
     }
 
     private createBackground(): void {
@@ -63,15 +57,12 @@ export class SlotMachine {
     }
 
     private createReels(): void {
-        // Create each reel
-
+        // Create reels and add them to the reel group
         for (let i = 0; i < REEL_COUNT; i++) {
             const reel = new Reel(SYMBOLS_PER_REEL, SYMBOL_SIZE);
             this.reelGroup.addReel(reel);
         }
-
         this.container.addChild(this.reelGroup.container);
-
     }
 
     public update(delta: number): void {
@@ -79,22 +70,20 @@ export class SlotMachine {
         this.reelGroup.update(delta);
     }
 
+    //made this async for easier comprehension
     public async spin(): Promise<void> {
-        if (this.isSpinning) return;
 
-        this.isSpinning = true;
-
-        // Disable spin button
+        // this tell the controller that the reel started spinning
         this.onReelStarted.dispatch();
         // Start spinning each reel with delay
         const willWin = await this.checkWin();
         await this.reelGroup.startSpin(willWin);
         await this.reelGroup.stopSpin();
-        this.isSpinning = false;
 
         if (willWin) {
             await this.showWin();
         }
+        // this tells the controller that the reel finished spinning
         this.onReelFinished.dispatch();
 
     }
@@ -105,9 +94,7 @@ export class SlotMachine {
 
 
     private async showWin(): Promise<void> {
-
         SoundHandler.instance.play('win');
-        console.log('Winner!');
         if (this.winAnimation) {
             this.winAnimation.spine.visible = true;
             await this.winAnimation.playAnimation('start');
@@ -116,6 +103,7 @@ export class SlotMachine {
     }
 
 
+    //created handler for the spine to be able to play animations async
     private initSpineAnimations(): void {
         try {
             this.frameSpine = new SpineAnimationHandler('base-feature-frame.json');
