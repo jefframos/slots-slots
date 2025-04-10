@@ -26,6 +26,8 @@ export class Reel {
     private blurFilter: PIXI.BlurFilter;
     private reelSound?: Howl;
 
+    private symbolAnchor: PIXI.Point = new PIXI.Point(0.5, 0.5);
+
     constructor(symbolCount: number, symbolSize: number) {
         this.container = new PIXI.Container();
         this.symbolSize = symbolSize;
@@ -45,6 +47,8 @@ export class Reel {
         this.container.filters = [this.blurFilter];
 
         this.createSymbols();
+        //offsets the reel based on the size and the anchor of the symbols
+        this.container.x = this.symbolSize * this.symbolAnchor.x;
     }
 
     private createSymbols(): void {
@@ -62,15 +66,19 @@ export class Reel {
         this.symbols.push(symbol);
     }
 
+    //um seting the anchor to 0.5,0.5 so the symbol is centered on the reel
+    //this is useful for scaling the symbols to fit the reel and helps with animations
     private createRandomSymbol(): PIXI.Sprite {
         const textureName = SYMBOL_TEXTURES[Math.floor(Math.random() * SYMBOL_TEXTURES.length)];
         const texture = AssetLoader.getTexture(textureName);
-
         const sprite = new PIXI.Sprite(texture);
-        sprite.width = this.symbolSize;
-        sprite.height = this.symbolSize;
+        sprite.anchor.copyFrom(this.symbolAnchor);
+        sprite.x = this.symbolSize * sprite.anchor.x;
+        sprite.y = this.symbolSize * sprite.anchor.y;
+        this.fitToSize(sprite)
         return sprite;
     }
+
 
     public update(delta: number): void {
         if (!this.isSpinning && this.speed === 0) return;
@@ -86,6 +94,7 @@ export class Reel {
                 symbol.texture = AssetLoader.getTexture(
                     SYMBOL_TEXTURES[Math.floor(Math.random() * SYMBOL_TEXTURES.length)]
                 );
+                this.fitToSize(symbol);
             }
         }
 
@@ -137,5 +146,15 @@ export class Reel {
     public stopSpin(): void {
         this.reelSound?.stop();
         this.isSpinning = false;
+    }
+
+    //this is used to set the size of the symbol, this is useful for scaling the symbols to fit the reel
+    //im using this because i added images with different sizes and this keeps the aspect ratio and fit on the bounds
+    private fitToSize(sprite: PIXI.Sprite) {
+        const bounds = sprite.getLocalBounds();
+        const scaleX = this.symbolSize / bounds.width;
+        const scaleY = this.symbolSize / bounds.height;
+        const scale = Math.min(scaleX, scaleY);
+        sprite.scale.set(scale);
     }
 }
