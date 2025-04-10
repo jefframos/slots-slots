@@ -15,15 +15,15 @@ export class GameController {
     }
 
     //this method is called when the spin button is clicked
-    private handleStartReel = () => {
+    private handleStartReel(): void {
         this.slotMachine.spin();
     };
     //this method is called when the spin animation starts
-    private handleReelStarted = () => {
+    private handleReelStarted(): void {
         this.ui.reelStarted();
     };
     //this method is called when the spin animation ends
-    private handleReelFinished = () => {
+    private handleReelFinished(): void {
         this.ui.reelFinished();
     };
 }
