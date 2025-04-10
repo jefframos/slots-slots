@@ -40,7 +40,6 @@ export class Reel {
         //that is an easy trick to use filters and dont have to worry about performance, it also ideal for ColorMatrix and some other filters
         //but for now i will use the filter on the container and let pixi handle it
         //this is a bit of a hack, but it works for now
-        //this would be a better approach for performance
         this.blurFilter = new PIXI.BlurFilter();
         this.blurFilter.blurX = 0;
         this.blurFilter.blurY = 0;

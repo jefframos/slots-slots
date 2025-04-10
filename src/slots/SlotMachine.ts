@@ -104,25 +104,26 @@ export class SlotMachine {
 
 
     //created handler for the spine to be able to play animations async
+    //I would prefer having the spine animations to be handled in a vfz handler class and let the slot much JUST do the reels
     private initSpineAnimations(): void {
         try {
             this.frameSpine = new SpineAnimationHandler('base-feature-frame.json');
             this.frameSpine.load().then(() => {
                 this.frameSpine.spine.visible = true;
-                this.frameSpine.spine.y = SLOT_PANEL_HEIGHT / 2;
                 this.frameSpine.spine.x = SLOT_PANEL_WIDTH / 2;
+                this.frameSpine.spine.y = SLOT_PANEL_HEIGHT / 2;
                 this.container.addChild(this.frameSpine.spine);
                 this.frameSpine.playAnimation('idle', true);
             });
 
-
             this.winAnimation = new SpineAnimationHandler('big-boom-h.json');
             this.winAnimation.load().then(() => {
                 this.winAnimation.spine.visible = false;
-                this.winAnimation.spine.x = SLOT_PANEL_HEIGHT / 2;
-                this.winAnimation.spine.y = SLOT_PANEL_WIDTH / 2;
+                this.winAnimation.spine.x = SLOT_PANEL_WIDTH / 2;
+                this.winAnimation.spine.y = SLOT_PANEL_HEIGHT / 2;
                 this.container.addChild(this.winAnimation.spine);
             })
+
 
         } catch (error) {
             console.error('Error initializing spine animations:', error);
